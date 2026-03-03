@@ -1,0 +1,53 @@
+### Get all books
+GET http://localhost:8000/books
+
+###
+
+### Get book by ID
+GET http://localhost:8000/books/1
+
+###
+
+### Get books by rating (rating > 5)
+GET http://localhost:8000/books/by_rating/?rating=2
+
+###
+
+### Get books by published date
+GET http://localhost:8000/books/by-date/?date=2023
+
+###
+
+### Create a new book
+POST http://localhost:8000/books/create_book
+Content-Type: application/json
+
+{
+  "title": "New Book Title",
+  "author": "Author Name",
+  "category": "python",
+  "rating": 5,
+  "published_date": "2024"
+}
+
+###
+
+### Update a book (PUT)
+PUT http://localhost:8000/books/3
+Content-Type: application/json
+
+{
+  "id": 3,
+  "title": "Updated Book Title",
+  "author": "Updated Author",
+  "category": "javascript",
+  "rating": 4,
+  "published_date": "2024"
+}
+
+###
+
+### Delete a book
+DELETE http://localhost:8000/books/3
+
+###
