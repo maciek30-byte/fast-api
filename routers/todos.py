@@ -1,53 +1,59 @@
-from fastapi import Depends, HTTPException, Path, APIRouter
-from models import Todos
-from schemas import TodoRequest
 from typing import Annotated
-from database import SessionLocal, engine, Base, get_db
+
+from fastapi import HTTPException, Path, APIRouter, Depends
+
+from schemas import TodoRequest
+from database import  db_dependency
 from starlette import status
+from services.auth import get_current_user
+from services.todo_service import TodoService
 
-todos_router = APIRouter()
+todos_router = APIRouter(
+    dependencies=[Depends(get_current_user)],
+)
 
-db_dependency = Annotated[SessionLocal, Depends(get_db)]
-
+user_dependency = Annotated[dict, Depends(get_current_user)]
 
 @todos_router.get("/", status_code=status.HTTP_200_OK)
-async def get_all_todos(db:db_dependency):
-    return db.query(Todos).all()
+async def get_all_todos(user_dep: user_dependency, db:db_dependency):
+    todo_service = TodoService(db)
+
+    return todo_service.get_all(user_dep.get("user_id"))
+
 
 @todos_router.get("/{todo_id}", status_code=status.HTTP_200_OK)
-async def get_one_todo( db:db_dependency, todo_id:int = Path(gt=0),):
-    to_do = db.query(Todos).filter(Todos.id == todo_id).first()
-    if not to_do:
+async def get_one_todo(user_dep: user_dependency, db:db_dependency, todo_id:int = Path(gt=0),):
+    todo_service = TodoService(db)
+    to_do_item = todo_service.get_by_id(todo_id, user_dep.get("user_id"))
+
+    if not to_do_item:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,)
-    return to_do
+
+    return to_do_item
 
 @todos_router.put('/{todo_id}', status_code=status.HTTP_204_NO_CONTENT)
-async def update_todo( db:db_dependency, todo_id:int, update_request: TodoRequest):
-    item: Todos = db.query(Todos).filter(Todos.id == todo_id).first()
+async def update_todo(user_dep : user_dependency, db:db_dependency, todo_id:int, update_request: TodoRequest):
+    todo_service = TodoService(db)
+    item = todo_service.update(user_dep.get("user_id"), update_request, todo_id)
     if not item:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,)
 
-    item.title = update_request.title
-    item.description = update_request.description
-    item.is_completed = update_request.is_completed
-    item.priority = update_request.priority
-
-    db.add(item)
-    db.commit()
+    return item
 
 @todos_router.post("/create_todo", status_code=status.HTTP_201_CREATED)
-async def create_item(db:db_dependency, create_request: TodoRequest):
-    todo_model = Todos(**create_request.model_dump())
+async def create_item(db:db_dependency, create_request: TodoRequest, user_dep: user_dependency):
+    todo_service = TodoService(db)
 
-    db.add(todo_model)
-    db.commit()
+    todo_service.create(create_request, user_dep.get("user_id"))
 
 @todos_router.delete("/{todo_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_item(db:db_dependency, todo_id:int = Path(gt=0),):
-    todo_model = db.query(Todos).filter(Todos.id == todo_id).first()
-    if not todo_model:
+async def delete_item(user_dep: user_dependency,db:db_dependency, todo_id:int = Path(gt=0),):
+    todo_service = TodoService(db)
+
+    item = todo_service.delete(user_dep.get("user_id"), todo_id)
+    if not item:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,)
-    db.delete(todo_model)
-    db.commit()
+
+    return item
 
 

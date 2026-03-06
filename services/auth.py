@@ -1,13 +1,20 @@
 from datetime import timedelta, datetime, timezone
-from typing import Union
+from http.client import HTTPException
+from typing import Union, Annotated, Dict
+
+from fastapi import Depends
+
+from starlette import status
+
+from core import oauth2_barrer
 
 from core.seciurity import bcrypt_context
 from core.settings import settings
-from models import Users
-from jose import jwt
+from models import User
+from jose import jwt, JWTError
 
-def authenticate_user(username: str, password: str, db)-> Union[Users, bool]:
-    selected_user = db.query(Users).filter(Users.username == username).first()
+def authenticate_user(username: str, password: str, db)-> Union[User, bool]:
+    selected_user = db.query(User).filter(User.username == username).first()
     if not selected_user:
         return False
     if not bcrypt_context.verify(password, selected_user.hashed_password):
@@ -18,3 +25,21 @@ def create_access_token(username: str, user_id: int, expires_delta: timedelta) -
     encode = {"sub": username, "id": user_id, "exp": datetime.now(timezone.utc) + expires_delta}
 
     return jwt.encode(encode,settings.SECRET_KEY, algorithm= settings.ALGORITHM)
+
+def get_current_user(token: Annotated[str, Depends(oauth2_barrer)]) -> Union[Dict[str, int], None]:
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        username: str = payload.get("sub")
+        user_id: int = payload.get("id")
+
+        if username is None or user_id is None:
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED)
+
+        return {"username": username, "user_id": user_id}
+
+    except JWTError:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED)
+
+
+
+

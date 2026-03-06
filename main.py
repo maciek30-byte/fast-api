@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from routers.auth import auth_router
 from routers.todos import todos_router
 from database import engine, Base
-from models import Todos, Users  # Import models to register them with Base
+from models import Todo, User  # Import models to register them with Base
 
 Base.metadata.create_all(engine)
 

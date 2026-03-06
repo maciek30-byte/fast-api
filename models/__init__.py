@@ -1,4 +1,4 @@
-from .todo import Todos
-from .user import Users
+from .todo import Todo
+from .user import User
 
-__all__ = ["Todos", "Users"]
+__all__ = ["Todo", "User"]
