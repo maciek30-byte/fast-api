@@ -11,7 +11,7 @@ from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 
 from schemas import CreateUserRequest
 from schemas.token import Token
-from services.auth import authenticate_user, create_access_token
+from core.auth import authenticate_user, create_access_token
 
 auth_router = APIRouter()
 @auth_router.post('/token', status_code=status.HTTP_200_OK, response_model=Token)
@@ -24,7 +24,7 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
             detail="Could not validate credentials",
         )
 
-    token = create_access_token(authenticated_user.username, authenticated_user.id, timedelta(minutes=20))
+    token = create_access_token(authenticated_user.username, authenticated_user.id, authenticated_user.role, timedelta(minutes=20))
 
     return {"access_token": token, "token_type": "bearer"}
 @auth_router.get("/users",status_code=status.HTTP_200_OK)

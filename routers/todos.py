@@ -5,7 +5,7 @@ from fastapi import HTTPException, Path, APIRouter, Depends
 from schemas import TodoRequest
 from database import  db_dependency
 from starlette import status
-from services.auth import get_current_user
+from core.auth import get_current_user
 from services.todo_service import TodoService
 
 todos_router = APIRouter(
