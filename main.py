@@ -5,7 +5,7 @@ from routers.auth import auth_router
 from routers.todos import todos_router
 from database import engine, Base
 
-Base.metadata.create_all(engine)
+Base.metadata.create_all(engine)  # type: ignore[attr-defined]
 
 app = FastAPI()
 
