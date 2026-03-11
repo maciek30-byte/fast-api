@@ -32,10 +32,10 @@ class TodoService:
         if not item:
             return None
 
-        item.title = data.title
-        item.description = data.description
-        item.is_completed = data.is_completed
-        item.priority = data.priority
+        item.title = data.title  # type: ignore
+        item.description = data.description  # type: ignore
+        item.is_completed = data.is_completed  # type: ignore
+        item.priority = data.priority  # type: ignore
 
         self.db.add(item)
         self.db.commit()

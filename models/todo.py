@@ -13,4 +13,4 @@ class Todo(Base):
     priority = Column(Integer)
     owner_id = Column(Integer, ForeignKey("users.id"))
 
-    owner = relationship("User", back_populates="todos")
+    owner = relationship("User", back_populates="todos")  # type: ignore[var-annotated]

@@ -15,5 +15,5 @@ class User(Base):
     is_active = Column(Boolean, default=True)
     role = Column(String)
 
-    todos = relationship("Todo", back_populates="owner")
+    todos = relationship("Todo", back_populates="owner")  # type: ignore[var-annotated]
 
