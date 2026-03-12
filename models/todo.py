@@ -9,7 +9,7 @@ class Todo(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String)
     description = Column(String)
-    is_completed = Column(Boolean, default=False)
+    is_completed = Column("complete", Boolean, default=False)
     priority = Column(Integer)
     owner_id = Column(Integer, ForeignKey("users.id"))
 

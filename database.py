@@ -9,8 +9,9 @@ from sqlalchemy.ext.declarative import declarative_base
 
 BASE_DIR = Path(__file__).resolve().parent
 SQLALCHEMY_DATABASE_URI = f'sqlite:///{BASE_DIR}/todosapp.db'
+SQLALCHEMY_DATABASE_URL = 'postgresql://postgres:Ewelina1992%40@localhost/todos_database'
 
-engine = create_engine(SQLALCHEMY_DATABASE_URI, connect_args={"check_same_thread": False})
+engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()  # type: ignore[attr-defined]
 

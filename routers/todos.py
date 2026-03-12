@@ -10,7 +10,7 @@ from services.todo_service import TodoService
 
 
 todos_router = APIRouter(
-    prefix="todos",
+    prefix="/todos",
     tags=["todos"],
     dependencies=[Depends(get_current_user)],
 )
